@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import type { LinksFunction } from "@remix-run/node";
-import { Templates, initialBoxShadow } from '~/constants/box-shadow-values';
-import { AppProvider, Button, FormLayout, hsbToRgb, Page, Divider, Grid, LegacyCard, Checkbox, RangeSlider, ColorPicker } from '@shopify/polaris';
+import { BLUE_DEFAULT, Templates, WHITE_DEFAULT, initialBoxShadow } from '~/constants/box-shadow-values';
+import { AppProvider, Button, ButtonGroup, FormLayout, hsbToRgb, Page, Divider, Grid, LegacyCard, Checkbox, RangeSlider, ColorPicker } from '@shopify/polaris';
 import {
   DndContext,
   KeyboardSensor,
@@ -21,25 +21,15 @@ import { BoxShadowI } from '~/types/index.type';
 import CustomColorPicker, { links as colorPicker } from '../ColorPicker/ColorPicker';
 
 const Box = () => {
-  const [data, setData] = useState(initialBoxShadow);
-  console.log("🚀 ~ file: Box.tsx:25 ~ Box ~ data:", data)
-  const [shadows, setShadows] = useState<any>([]);
+  const storedData = typeof window !== 'undefined' ? localStorage.getItem('boxShadowData') : null;
+  const initialData = storedData ? JSON.parse(storedData) : initialBoxShadow;
+  const [data, setData] = useState<BoxShadowI[]>(initialData);
+  const [shadows, setShadows] = useState<string>();
   const [colorItem, setColorItem] = useState('');
   const [colorBg, setColorBg] = useState('');
-  const [colorItemDf, setColorItemDf] = useState({
-    hue: 196.11940298507463,
-    saturation: 1,
-    brightness: 0.98125,
-    alpha: 1
-  });
-  const [colorBgDf, setColorBgDf] = useState({
-    hue: 196.11940298507463,
-    saturation: 0.03125,
-    brightness: 0.98125,
-    alpha: 1
-  });
+  const [colorItemDf, setColorItemDf] = useState(BLUE_DEFAULT);
+  const [colorBgDf, setColorBgDf] = useState(WHITE_DEFAULT);
   const [formData, setFormData] = useState(data[0]);
-  console.log("🚀 ~ file: Box.tsx:42 ~ Box ~ formData:", formData)
   const [count, setCount] = useState(data.length);
   const [editData, setEditData] = useState<any>();
   const mouseSensor = useSensor(MouseSensor, {
@@ -49,11 +39,18 @@ const Box = () => {
   })
   const keyboardSensor = useSensor(KeyboardSensor)
   const sensors = useSensors(mouseSensor, keyboardSensor)
-  const handleTemplateChange = (e: any) => {
+  const handleTemplateChange = (e: BoxShadowI[]) => {
     setData(e);
     setEditData(e[0])
   };
-
+  useEffect(() => {
+    const storedData = localStorage.getItem('boxShadowData');
+    if (storedData) {
+      setData(JSON.parse(storedData));
+    } else {
+      setData(initialBoxShadow);
+    }
+  }, [])
 
   const updateShadow = (prop: string, val: any) => {
     setFormData({ ...formData, [prop]: val });
@@ -64,24 +61,25 @@ const Box = () => {
       return item;
     });
     setData(updatedData);
+
   };
-  
+
   useEffect(() => {
     const colorFomat = hsbToRgb(colorItemDf)
-    setColorItem(`rgba(${colorFomat.red}, ${colorFomat.green}, ${colorFomat.blue})`)
+    setColorItem(`rgba(${colorFomat?.red}, ${colorFomat?.green}, ${colorFomat?.blue})`)
   }, [colorItemDf])
 
   useEffect(() => {
     const colorFomat = hsbToRgb(colorBgDf)
-    setColorBg(`rgba(${colorFomat.red}, ${colorFomat.green}, ${colorFomat.blue})`)
+    setColorBg(`rgba(${colorFomat?.red}, ${colorFomat?.green}, ${colorFomat?.blue})`)
   }, [colorBgDf])
 
   useEffect(() => {
     const boxShadowString = data
-      .map((item: any) => {
+      .map((item: BoxShadowI) => {
         const { shiftRight, shiftDown, blur, spread, color, inset } = item;
         const ToRgb = hsbToRgb(color)
-        const colorWithOpacity = `rgba(${ToRgb.red}, ${ToRgb.green}, ${ToRgb.blue})`;
+        const colorWithOpacity = `rgba(${ToRgb?.red}, ${ToRgb?.green}, ${ToRgb?.blue})`;
         const insetString = inset
           ? `inset ${shiftRight}px ${shiftDown}px ${blur}px ${spread}px `
           : `${shiftRight}px ${shiftDown}px ${blur}px ${spread}px`;
@@ -89,19 +87,20 @@ const Box = () => {
       })
       .join(",");
     setShadows(boxShadowString);
+    localStorage.setItem('boxShadowData', JSON.stringify(data));
   }, [data, formData]);
 
   useEffect(() => {
     if (editData) {
-      setFormData((prevFormData: any) => ({
+      setFormData((prevFormData: BoxShadowI) => ({
         ...prevFormData,
-        shiftRight: editData.shiftRight,
-        shiftDown: editData.shiftDown,
-        spread: editData.spread,
-        blur: editData.blur,
-        color: editData.color,
-        inset: editData.inset,
-        id: editData.id,
+        shiftRight: editData?.shiftRight,
+        shiftDown: editData?.shiftDown,
+        spread: editData?.spread,
+        blur: editData?.blur,
+        color: editData?.color,
+        inset: editData?.inset,
+        id: editData?.id,
       }));
     } else {
       setEditData(data[0])
@@ -131,11 +130,16 @@ const Box = () => {
     const { active, over } = event;
     if (!active.id !== over.id) {
       setData((e) => {
-        const oldIndex = e.findIndex((shadow) => shadow.id === active.id);
-        const newIndex = e.findIndex((shadow) => shadow.id === over.id);
+        const oldIndex = e.findIndex((shadow) => shadow?.id === active?.id);
+        const newIndex = e.findIndex((shadow) => shadow?.id === over?.id);
         return arrayMove(e, oldIndex, newIndex);
       });
     }
+  };
+  const handleClearData = () => {
+    localStorage.removeItem('boxShadowData');
+    setData(initialBoxShadow);
+    setEditData(initialBoxShadow[0]);
   };
   return (
     <AppProvider i18n={{}}>
@@ -147,7 +151,7 @@ const Box = () => {
                 <FormLayout>
                   <RangeSlider
                     label="Shift right"
-                    value={formData.shiftRight}
+                    value={formData?.shiftRight}
                     id='shiftRight'
                     onChange={(e) => updateShadow("shiftRight", e)}
                     output
@@ -158,7 +162,7 @@ const Box = () => {
                   <RangeSlider
                     id='shiftDown'
                     label="Shift down"
-                    value={formData.shiftDown}
+                    value={formData?.shiftDown}
                     onChange={(e) => updateShadow("shiftDown", e)}
                     output
                     min={-50}
@@ -168,7 +172,7 @@ const Box = () => {
                   <RangeSlider
                     id='spread'
                     label="Spread"
-                    value={formData.spread}
+                    value={formData?.spread}
                     onChange={(e) => updateShadow("spread", e)}
                     output
                     min={0}
@@ -178,7 +182,7 @@ const Box = () => {
                   <RangeSlider
                     label="Blur"
                     id='blur'
-                    value={formData.blur}
+                    value={formData?.blur}
                     onChange={(e) => updateShadow("blur", e)}
                     output
                     min={0}
@@ -188,24 +192,26 @@ const Box = () => {
                   <Checkbox
                     label="Inset"
                     id='inset'
-                    checked={formData.inset}
+                    checked={formData?.inset}
                     onChange={(e) => updateShadow("inset", e)}
                   />
-                  <ColorPicker onChange={(e) => updateShadow("color", e)} color={formData.color} />
+                  <ColorPicker onChange={(e) => updateShadow("color", e)} color={formData?.color} />
                   <Divider />
-                  <div>
+                  <ButtonGroup>
                     <Button onClick={handleAdd}>Add product</Button>
-                  </div>
+                    <Button destructive onClick={handleClearData}>
+                      Reset
+                    </Button>
+                  </ButtonGroup>
                   <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} id='ROOT'>
                     <SortableContext
                       items={data}
                       strategy={verticalListSortingStrategy}
                     >
                       <div className='list'>
-                        {data.map((e: any, index: number) => (
-                          <ListItem index={index} type='box' formData={formData} data={data} setData={setData} shadow={e} key={index} editData={editData} setEditData={setEditData} />
+                        {data?.map((e: any, index: number) => (
+                          <ListItem type='box' formData={formData} data={data} setData={setData} shadow={e} key={index} editData={editData} setEditData={setEditData} />
                         ))}
-
                       </div>
                     </SortableContext>
                   </DndContext>

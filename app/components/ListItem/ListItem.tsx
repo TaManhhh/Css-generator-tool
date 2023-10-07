@@ -15,11 +15,9 @@ interface ListItem {
     shadow: any,
     formData: any,
     type: string,
-    index: number,
 }
 
-const ListItem = ({ data, setData, formData, type, index, setEditData, shadow }: ListItem) => {
-
+const ListItem = ({ data, setData, formData, type, setEditData, shadow }: ListItem) => {
     const formatColor = (color: any) => {
         const changeColor = hsbToRgb(color)
         return `rgba(${changeColor.red}, ${changeColor.green}, ${changeColor.blue})`;
@@ -49,10 +47,9 @@ const ListItem = ({ data, setData, formData, type, index, setEditData, shadow }:
             {...attributes}
             {...listeners}
             key={shadow?.id}
-            
             onClick={() => handleEditClick(shadow)}
             className={`list-item ${formData?.id === shadow?.id ? "active" : " inactive"}`}
-          >
+        >
             <div className='list-shadow' >
                 <Icon
                     source={DragHandleMinor}
@@ -67,16 +64,18 @@ const ListItem = ({ data, setData, formData, type, index, setEditData, shadow }:
                 </div>
             </div>
             <div className='list-button'>
-                <span ><Icon
-                    source={EditMinor}
-                    color="base"
-                /></span>
+                <span >
+                    <Icon
+                        source={EditMinor}
+                        color="base" />
+
+                </span>
                 <span onClick={() => onDelete(shadow.id)} >
                     <Icon
                         source={DeleteMinor}
                         color="base"
-
-                    /></span >
+                    />
+                </span >
             </div>
         </div>
     )

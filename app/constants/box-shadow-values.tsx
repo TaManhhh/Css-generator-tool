@@ -109,3 +109,15 @@ export const initialTextShadow: TextShadow[] = [
     id: 0,
   },
 ];
+export const BLUE_DEFAULT = {
+  hue: 196.11940298507463,
+  saturation: 1,
+  brightness: 0.98125,
+  alpha: 1
+}
+export const WHITE_DEFAULT = {
+  hue: 196.11940298507463,
+  saturation: 0.03125,
+  brightness: 0.98125,
+  alpha: 1
+}

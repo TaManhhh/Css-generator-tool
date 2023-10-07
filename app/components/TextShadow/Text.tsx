@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import type { LinksFunction } from "@remix-run/node";
-import { AppProvider, Button, FormLayout, hsbToRgb, Page, Divider, Grid, LegacyCard, Checkbox, RangeSlider, ColorPicker } from '@shopify/polaris';
+import { AppProvider, Button, ButtonGroup, FormLayout, hsbToRgb, Page, Divider, Grid, LegacyCard, Checkbox, RangeSlider, ColorPicker } from '@shopify/polaris';
 import {
   DndContext,
   KeyboardSensor,
@@ -15,30 +15,33 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import ListItem, { links as listItem } from '~/components/ListItem/ListItem';
-import { initialTextShadow } from '~/constants/box-shadow-values';
-import { BoxShadowI } from '~/types/index.type';
+import { BLUE_DEFAULT, WHITE_DEFAULT, initialTextShadow } from '~/constants/box-shadow-values';
+import { TextShadow } from '~/types/index.type';
 import boxShadow from '../BoxShadow/boxShadow.css'
-import CustomColorPicker from '../ColorPicker/ColorPicker';
+import CustomColorPicker, { links as colorPicker } from '../ColorPicker/ColorPicker';
+
 const Text = () => {
-  const [data, setData] = useState(initialTextShadow);
-  const [shadows, setShadows] = useState<any>([]);
+  const storedData = typeof window !== 'undefined' ? localStorage.getItem('textShadowData') : null;
+  const initialData = storedData ? JSON.parse(storedData) : initialTextShadow;
+  const [data, setData] = useState<TextShadow[]>(initialData);
+  const [shadows, setShadows] = useState<string>('');
   const [colorItem, setColorItem] = useState('');
   const [colorBg, setColorBg] = useState('');
-  const [colorItemDf, setColorItemDf] = useState({
-    hue: 196.11940298507463,
-    saturation: 1,
-    brightness: 0.98125,
-    alpha: 1
-  });
-  const [colorBgDf, setColorBgDf] = useState({
-    hue: 196.11940298507463,
-    saturation: 0.03125,
-    brightness: 0.98125,
-    alpha: 1
-  });
+  const [colorItemDf, setColorItemDf] = useState(BLUE_DEFAULT);
+  const [colorBgDf, setColorBgDf] = useState(WHITE_DEFAULT);
   const [formData, setFormData] = useState(data[0]);
   const [count, setCount] = useState(data.length);
   const [editData, setEditData] = useState<any>();
+
+  // const updateBackGround = (prop) => {
+  //   setColorBgDf(prop)
+
+  //   //cnvert
+  //   const colorFomat = hsbToRgb(colorBgDf)
+  //   setColorBg(`rgba(${colorFomat.red}, ${colorFomat.green}, ${colorFomat.blue})`)
+  // }
+
+
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10,
@@ -46,6 +49,7 @@ const Text = () => {
   })
   const keyboardSensor = useSensor(KeyboardSensor)
   const sensors = useSensors(mouseSensor, keyboardSensor)
+
   const updateShadow = (prop: string, val: any) => {
     setFormData({ ...formData, [prop]: val });
     const updatedData = data.map((item: any) => {
@@ -78,7 +82,7 @@ const Text = () => {
     }
   };
   useEffect(() => {
-    const boxShadowString = data
+    const textShadowString = data
       .map((item: any) => {
         const { shiftRight, shiftDown, blur, color } = item;
         const ToRgb = hsbToRgb(color)
@@ -87,7 +91,8 @@ const Text = () => {
         return ` ${insetString} ${colorWithOpacity} `;
       })
       .join(",");
-    setShadows(boxShadowString);
+    setShadows(textShadowString);
+    localStorage.setItem('textShadowData', JSON.stringify(data));
   }, [data, formData]);
 
   useEffect(() => {
@@ -103,26 +108,28 @@ const Text = () => {
     } else {
       setEditData(data[0])
       setFormData(data[0])
-
     }
   }, [editData]);
 
   const handleAdd = () => {
-    const newData: BoxShadowI = {
+    const newData: TextShadow = {
       id: count,
       shiftRight: 0,
       shiftDown: 19,
-      spread: 3,
       blur: 7,
       color: {
         hue: 120,
         brightness: 1,
         saturation: 1,
       },
-      inset: false,
     };
     setData((prevData: any) => [...prevData, newData]);
     setCount(count + 1);
+  };
+  const handleClearData = () => {
+    localStorage.removeItem('textShadowData');
+    setData(initialTextShadow);
+    setEditData(initialTextShadow[0]);
   };
   return (
     <AppProvider i18n={{}}>
@@ -130,7 +137,7 @@ const Text = () => {
         <Page fullWidth>
           <Grid>
             <Grid.Cell columnSpan={{ xs: 6, lg: 6, xl: 6 }}>
-              <LegacyCard title="Box-Shadow CSS Generator" sectioned>
+              <LegacyCard title="Text-Shadow CSS Generator" sectioned>
                 <FormLayout>
                   <RangeSlider
                     label="Shift right"
@@ -165,19 +172,22 @@ const Text = () => {
                   />
                   <ColorPicker onChange={(e) => updateShadow("color", e)} color={formData.color} />
                   <Divider />
-                  <div>
+                  <ButtonGroup>
                     <Button onClick={handleAdd}>Add product</Button>
-                  </div>
-                  <DndContext  sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <Button destructive onClick={handleClearData}>
+                      Reset
+                    </Button>
+                  </ButtonGroup>
+
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <SortableContext
                       items={data}
                       strategy={verticalListSortingStrategy}
                     >
                       <div className='list'>
                         {data.map((e: any, index: number) => (
-                          <ListItem index={index} type='text' formData={formData} data={data} setData={setData} shadow={e} key={index} editData={editData} setEditData={setEditData} />
+                          <ListItem type='text' formData={formData} data={data} setData={setData} shadow={e} key={index} editData={editData} setEditData={setEditData} />
                         ))}
-
                       </div>
                     </SortableContext>
                   </DndContext>
@@ -187,9 +197,8 @@ const Text = () => {
             <Grid.Cell columnSpan={{ xs: 6, lg: 6, xl: 6 }}>
               <LegacyCard  >
                 <LegacyCard.Header title="Preview">
-                <CustomColorPicker value={colorItemDf} setValue={setColorItemDf} />
+                  <CustomColorPicker value={colorItemDf} setValue={setColorItemDf} />
                   <CustomColorPicker value={colorBgDf} setValue={setColorBgDf} />
-
                 </LegacyCard.Header>
                 <LegacyCard.Section>
                   <div style={{ background: colorBg, padding: 50 }}>
@@ -220,5 +229,5 @@ const Text = () => {
 
 export default Text
 export const links: LinksFunction = () => {
-  return [{ rel: 'stylesheet', href: boxShadow }, ...listItem()]
+  return [{ rel: 'stylesheet', href: boxShadow }, ...listItem(), ...colorPicker()]
 }
