@@ -20,10 +20,20 @@ import { TextShadow } from '~/types/index.type';
 import boxShadow from '../BoxShadow/boxShadow.css'
 import CustomColorPicker, { links as colorPicker } from '../ColorPicker/ColorPicker';
 
+const getDataFromLocalStorage = (): TextShadow[] => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const storedData = window.localStorage.getItem('textShadowData');
+    const parsedData = storedData ? JSON.parse(storedData) : initialTextShadow;
+    if (Array.isArray(parsedData) && parsedData.length === 0) {
+      return initialTextShadow;
+    }
+    return parsedData;
+  } else {
+    return initialTextShadow;
+  }
+};
 const Text = () => {
-  const storedData = typeof window !== 'undefined' ? localStorage.getItem('textShadowData') : null;
-  const initialData = storedData ? JSON.parse(storedData) : initialTextShadow;
-  const [data, setData] = useState<TextShadow[]>(initialData);
+  const [data, setData] = useState<TextShadow[]>(getDataFromLocalStorage());
   const [shadows, setShadows] = useState<string>('');
   const [colorItem, setColorItem] = useState('');
   const [colorBg, setColorBg] = useState('');

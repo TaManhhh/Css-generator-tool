@@ -20,10 +20,22 @@ import ListItem, { links as listItem } from '~/components/ListItem/ListItem';
 import { BoxShadowI } from '~/types/index.type';
 import CustomColorPicker, { links as colorPicker } from '../ColorPicker/ColorPicker';
 
+
+const getDataFromLocalStorage = (): BoxShadowI[] => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const storedData = window.localStorage.getItem('boxShadowData');
+    const parsedData = storedData ? JSON.parse(storedData) : initialBoxShadow;
+    if (Array.isArray(parsedData) && parsedData.length === 0) {
+      return initialBoxShadow;
+    }
+    return parsedData;
+  } else {
+    return initialBoxShadow;
+  }
+};
+
 const Box = () => {
-  const storedData = typeof window !== 'undefined' ? localStorage.getItem('boxShadowData') : null;
-  const initialData = storedData ? JSON.parse(storedData) : initialBoxShadow;
-  const [data, setData] = useState<BoxShadowI[]>(initialData);
+  const [data, setData] = useState<BoxShadowI[]>(getDataFromLocalStorage());
   const [shadows, setShadows] = useState<string>();
   const [colorItem, setColorItem] = useState('');
   const [colorBg, setColorBg] = useState('');
