@@ -1,17 +1,16 @@
 .colorPicker {
-    width: 50px;
-    height: 30px;
-    background-color: whitesmoke;
-    border: 1px solid;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 50px;
+  height: 30px;
+  background-color: whitesmoke;
+  border: 1px solid;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .color-picker-main {
-    width: 40px;
-    height: 20px;
-    border-radius: 5px;
-
+  width: 40px;
+  height: 20px;
+  border-radius: 5px;
 }

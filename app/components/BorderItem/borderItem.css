@@ -1,0 +1,12 @@
+.border-item{
+  padding: 10px;
+  text-align: center;
+  width: 30%;
+  margin: 5px;
+  cursor: pointer;
+  background-color: #f4f5fa;
+  transition: background .3s;
+}
+.border-item:hover{
+  background-color:#fcf1cd
+}

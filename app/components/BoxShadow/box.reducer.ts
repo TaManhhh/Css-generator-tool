@@ -1,19 +1,17 @@
 import { createReducer, createAction, current } from '@reduxjs/toolkit'
-
-
-interface BoxState {
-    shadowList: BoxShadowI[]
-    editingShadow: BoxShadowI | null
-  }
-  const initalSate: BoxState = {
-    shadowList: initialBoxShadow,
-    editingShadow: null
-  }
 import React from 'react'
 import { initialBoxShadow } from '~/constants/box-shadow-values'
-import { BoxShadowI } from '~/types/index.type'
-const boxReducer = createReducer(initalSate,(builder)=>{
-  
-}) 
+import type { IBoxShadow } from '~/types/index.type'
+
+interface BoxState {
+    shadowList: IBoxShadow[]
+    editingShadow: IBoxShadow | null
+}
+const initalSate: BoxState = {
+    shadowList: initialBoxShadow,
+    editingShadow: null,
+}
+
+const boxReducer = createReducer(initalSate, (builder) => {})
 
 export default boxReducer

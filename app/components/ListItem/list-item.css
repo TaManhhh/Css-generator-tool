@@ -1,24 +1,24 @@
-.list-item{
-    display: flex;
-    justify-content: space-between;
-    cursor: move;
-    border: 1px solid #c4cdd5;
-    padding: 12px ;
-    border-radius: 5px;
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  cursor: move;
+  border: 1px solid #c4cdd5;
+  padding: 12px;
+  border-radius: 5px;
 }
-.list-button{
-    display: flex;
-    gap: 4px;
+.list-button {
+  display: flex;
+  gap: 4px;
 }
-.list-shadow{
-    display: flex;
-    gap: 5px;
+.list-shadow {
+  display: flex;
+  gap: 5px;
 }
-.active{
-    background-color: #404da0;
-    color: #fff;
+.active {
+  background-color: #404da0;
+  color: #fff;
 }
-.inactive{
-    background-color: #f0f0f0;
-    color: #000;
+.inactive {
+  background-color: #f0f0f0;
+  color: #000;
 }

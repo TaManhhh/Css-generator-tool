@@ -1,31 +1,36 @@
-import { useState, useCallback ,useEffect} from 'react'
-import {  Popover,hsbToRgb, ColorPicker } from '@shopify/polaris';
+import { useState, useCallback, useEffect } from 'react'
+import type { HSBAColor } from '@shopify/polaris'
+import { Popover, hsbToRgb, ColorPicker } from '@shopify/polaris'
+import type { LinksFunction } from '@remix-run/node'
 import colorPiker from './colorPicker.css'
-import { LinksFunction } from '@remix-run/node';
-interface ColorPickerI{
-    value:any,
-    setValue:any
+
+interface ColorPickerI {
+    value: HSBAColor
+    onChange: (value: HSBAColor) => void
 }
-const CustomColorPicker = ({value,setValue}:ColorPickerI) => {
-    const [popoverActive, setPopoverActive] = useState(false);
-    const [color, setColor] = useState('');
+const CustomColorPicker = ({ value, onChange }: ColorPickerI) => {
+    const [popoverActive, setPopoverActive] = useState(false)
+    const [color, setColor] = useState('')
     const togglePopoverActive = useCallback(
         () => setPopoverActive((popoverActive) => !popoverActive),
-        [],
-    );
+        []
+    )
     useEffect(() => {
-        const colorFomat= hsbToRgb(value)
-        setColor(`rgba(${colorFomat.red}, ${colorFomat.green}, ${colorFomat.blue})` )
-    
+        const colorFomat = hsbToRgb(value)
+        setColor(
+            `rgba(${colorFomat.red}, ${colorFomat.green}, ${colorFomat.blue})`
+        )
     }, [value])
 
     const activator = (
-        <div className='colorPicker'>
-            <button onClick={togglePopoverActive} className='color-picker-main' style={{ backgroundColor: color }} >
-            </button>
+        <div className="colorPicker">
+            <button
+                onClick={togglePopoverActive}
+                className="color-picker-main"
+                style={{ background: color }}
+            ></button>
         </div>
-
-    );
+    )
     return (
         <div>
             <Popover
@@ -37,7 +42,7 @@ const CustomColorPicker = ({value,setValue}:ColorPickerI) => {
             >
                 <Popover.Pane fixed>
                     <Popover.Section>
-                        <ColorPicker onChange={setValue} color={value} />
+                        <ColorPicker onChange={onChange} color={value} />
                     </Popover.Section>
                 </Popover.Pane>
             </Popover>
@@ -46,6 +51,6 @@ const CustomColorPicker = ({value,setValue}:ColorPickerI) => {
 }
 
 export default CustomColorPicker
-export const links: LinksFunction = () => {
-    return [{ rel: 'stylesheet', href: colorPiker }]
-  }
+export const links: LinksFunction = () => [
+    { rel: 'stylesheet', href: colorPiker },
+]
